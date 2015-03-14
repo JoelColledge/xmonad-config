@@ -8,6 +8,7 @@ import XMonad.Layout.LayoutCombinators( JumpToLayout(..), (|||) )
 import XMonad.Hooks.ManageDocks
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
+import XMonad.Layout.Reflect(reflectHoriz)
 import qualified XMonad.StackSet as W
 
 -- my layouts
@@ -30,7 +31,7 @@ toRemove XConfig{modMask = modm} =
     , (modm              , xK_w     ) -- todo: use some other keys for xinerama
     , (modm              , xK_e     ) -- todo: use some other keys for xinerama
     , (modm              , xK_r     ) -- todo: use some other keys for xinerama
-    , (modm              , xK_t     ) -- todo: use some other key to push back into tiling
+    , (modm              , xK_t     )
     ]
 
 -- These are my personal key bindings
@@ -38,13 +39,16 @@ toAdd XConfig{modMask = modm} =
     [ ((modm,       xK_Escape), spawn "layout_switch.sh")
     , ((modm,       xK_c), kill)
     , ((mod1Mask,   xK_F4), kill)
+    , ((modm,       xK_p), withFocused $ windows . W.sink) -- push back into tiling
     , ((modm,       xK_Down), sendMessage Shrink)
     , ((modm,       xK_Up), sendMessage Expand) ] ++
     [ ((modm .|. m, k), jumpToLayout l h u)
         | (k,l,u) <- [(xK_KP_Insert, "Reading", True),
                       (xK_KP_Begin, "Full", False),
                       (xK_KP_Left, "Tall", False),
-                      (xK_KP_Up, "Fat", False)]
+                      (xK_KP_Up, "Fat", False),
+                      (xK_KP_Right, "TallRight", False),
+                      (xK_KP_Down, "FatTop", False)]
         , (m,h) <- [(0, True), (shiftMask, False)] ]
 
 jumpToLayout layout wantPanel useHide = do
@@ -63,9 +67,12 @@ myLayoutHook = desktopLayoutModifiers $ noBorders $
     tiled |||
     Full |||
     Reading (6/100) (3/4) |||
-    renamed [Replace "Fat"] (Mirror tiled)
+    renamed [Replace "Fat"] (Mirror tiled) |||
+    renamed [Replace "TallRight"] tiledSmallRight |||
+    renamed [Replace "FatTop"] (Mirror tiledSmallRight)
   where
-    tiled = Tall 1 (3/100) (1/2)
+    tiled = Tall 1 (3/100) (4/7)
+    tiledSmallRight = reflectHoriz $ Tall 1 (3/100) (3/7)
 
 main = xmonad xfceConfig
     { modMask = mod4Mask
