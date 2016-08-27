@@ -28,20 +28,22 @@ toRemove XConfig{modMask = modm} =
     , (modm .|. shiftMask, xK_q     )
     , (modm              , xK_q     )
     , (modm .|. shiftMask, xK_Return)
-    , (modm              , xK_w     ) -- todo: use some other keys for xinerama
-    , (modm              , xK_e     ) -- todo: use some other keys for xinerama
-    , (modm              , xK_r     ) -- todo: use some other keys for xinerama
+    , (modm              , xK_w     )
+    , (modm              , xK_e     )
+    , (modm              , xK_r     )
     , (modm              , xK_t     )
+    , (modm              , xK_space )
     ]
 
--- These are my personal key bindings
+-- add some new key bindings
 toAdd XConfig{modMask = modm} =
     [ ((modm,       xK_Escape), spawn "layout_switch.sh")
     , ((modm,       xK_c), kill)
     , ((mod1Mask,   xK_F4), kill)
     , ((modm,       xK_p), withFocused $ windows . W.sink) -- push back into tiling
     , ((modm,       xK_Down), sendMessage Shrink)
-    , ((modm,       xK_Up), sendMessage Expand) ] ++
+    , ((modm,       xK_Up), sendMessage Expand) ]
+    ++
     [ ((modm .|. m, k), jumpToLayout l h u)
         | (k,l,u) <- [(xK_KP_Insert, "Reading", True),
                       (xK_KP_Begin, "Full", False),
@@ -50,6 +52,12 @@ toAdd XConfig{modMask = modm} =
                       (xK_KP_Right, "TallRight", False),
                       (xK_KP_Down, "FatTop", False)]
         , (m,h) <- [(0, True), (shiftMask, False)] ]
+    ++
+    -- mod-{y,u,i} %! Switch to physical/Xinerama screens 1, 2, or 3
+    -- mod-shift-{y,u,i} %! Move client to screen 1, 2, or 3
+    [((modm .|. m, key), screenWorkspace sc >>= flip whenJust (windows . f))
+        | (key, sc) <- zip [xK_y, xK_u, xK_i] [0..]
+        , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 jumpToLayout layout wantPanel useHide = do
     windows W.swapMaster
