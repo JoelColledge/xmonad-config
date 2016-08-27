@@ -6,6 +6,7 @@ import XMonad.Config.Xfce
 import XMonad.Layout(Tall(..))
 import XMonad.Layout.LayoutCombinators( JumpToLayout(..), (|||) )
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.SetWMName
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
 import XMonad.Layout.Reflect(reflectHoriz)
@@ -84,6 +85,7 @@ myLayoutHook = desktopLayoutModifiers $ noBorders $
 
 main = xmonad xfceConfig
     { modMask = mod4Mask
+    , startupHook = setWMName "LG3D" -- mysterious Java fix
     , layoutHook = myLayoutHook
     , keys = newKeys
     , focusedBorderColor = myFocusedBorderColor
